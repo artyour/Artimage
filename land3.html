@@ -1,166 +1,219 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ma Landing</title>
-<style>
-  * { box-sizing: border-box }
-  html,body { height:100% }
-  body {
-    margin:0;
-    font-family: system-ui, Segoe UI, Roboto, Arial;
-    background:#0b0b0b;
-    color:#fff;
-  }
+  <meta charset="utf-8">
+  <title>Pellicule Vintage Latérale</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif; margin: 0; padding: 0;
+      background: #f3f1e7; color: #222; text-align: center;
+    }
+    header {
+      padding: 20px;
+      background: #0097a7;
+      border-bottom: 4px solid #006064;
+      color: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    header h1 { margin: 0; font-size: 2em; }
 
-  .bg {
-    position:fixed; inset:0;
-    background:linear-gradient(180deg,rgba(0,0,0,.35),rgba(0,0,0,.85)),
-               center/cover no-repeat url("assets/bg.webp");
-    z-index:-1;
-  }
+    /* Bloc caméra */
+    .camera-frame {
+      position: relative;
+      margin: 30px auto;
+      width: 80%; max-width: 700px;
+      height: 400px;
+      background: #f9f4e7;
+      border: 14px solid #0097a7;
+      border-radius: 8px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
 
-  .wrap {
-    min-height:100%;
-    display:grid;
-    place-items:center;
-    padding:16px;
-  }
+    /* Image ajustée */
+    .camera-frame img {
+      max-width: calc(100% - 120px);
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 4px;
+      z-index: 1;
+      position: relative;
+    }
 
-  .card {
-    width:min(100%,1080px);
-    display:grid;
-    gap:16px;
-    background:rgba(20,20,20,.6);
-    backdrop-filter:blur(6px);
-    border:1px solid rgba(255,255,255,.12);
-    border-radius:18px;
-    padding:20px;
-    margin-bottom:40px;
-  }
+    /* Bouton rouge clignotant (REC) */
+    .rec-light {
+      position: absolute;
+      top: 10px; right: 20px;
+      width: 20px; height: 20px;
+      background: red; border-radius: 50%;
+      box-shadow: 0 0 10px red;
+      animation: blink 1s infinite;
+      z-index: 2;
+    }
+    @keyframes blink {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0.2; }
+    }
 
-  h1 {
-    margin:.2rem 0;
-    font-size:clamp(1.6rem,2.6vw,2.6rem);
-  }
+    /* Colonnes de film */
+    .film-side {
+      position: absolute;
+      top: 00px; bottom: 00px;
+      width: 40px;
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      align-items: center;
+      padding: 10px 0;
+      z-index: 0;
+    }
+    .film-side.left { left: 10px; }
+    .film-side.right { right: 10px; }
+    .film-side div {
+      width: 25px; height: 25px;
+      background: #f9f4e7;
+      border-radius: 3px;
+    }
 
-  .tagline { font-style: italic; opacity:.85; margin:0 0 .5rem 0 }
-  .lead { opacity:.95; line-height:1.6 }
+    /* Flash blanc */
+    .flash {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: white;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .flash.active { animation: flashAnim 0.5s ease; }
+    @keyframes flashAnim {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
 
-  .media-box {
-    width:min(100%,720px);
-    margin:0 auto;
-    border-radius:12px;
-    overflow:hidden;
-    background:#000;
-    box-shadow:0 10px 30px rgba(0,0,0,.35);
-  }
+    /* Boutons */
+    .controls {
+      margin: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    button, label.upload-btn {
+      background: #0097a7; color: white; font-weight: bold;
+      border: none; border-radius: 6px;
+      padding: 12px 20px; font-size: 1rem;
+      cursor: pointer; transition: 0.3s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    button:hover, label.upload-btn:hover {
+      background: #006064;
+    }
 
-  .media-box img, .media-box video {
-    width:100%; height:auto; display:block; object-fit:cover;
-  }
-
-  .cta {
-    display:flex;
-    gap:.75rem;
-    flex-wrap:wrap;
-    margin-top:1rem;
-  }
-
-  /* 🔥 Nouveau style de boutons */
-  .btn {
-    position: relative;
-    display: inline-block;
-    padding: 0.9rem 1.4rem;
-    border-radius: 999px;
-    font-weight: 700;
-    text-decoration: none;
-    color: #fff;
-    background: linear-gradient(90deg, #ff6ec4, #7873f5);
-    overflow: hidden;
-    transition: all 0.3s ease;
-    box-shadow: 0 0 15px rgba(255, 110, 196, 0.6),
-                0 0 25px rgba(120, 115, 245, 0.5);
-  }
-
-  .btn:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 0 20px rgba(255, 110, 196, 0.9),
-                0 0 35px rgba(120, 115, 245, 0.8);
-  }
-
-  /* Variante ALT */
-  .btn.alt {
-    background: transparent;
-    border: 2px solid transparent;
-    background-image: linear-gradient(#0b0b0b, #0b0b0b),
-                      linear-gradient(90deg, #ff6ec4, #7873f5);
-    background-origin: border-box;
-    background-clip: padding-box, border-box;
-    color: #fff;
-    box-shadow: none;
-  }
-
-  .btn.alt:hover {
-    color: #fff;
-    background-image: linear-gradient(90deg, #ff6ec4, #7873f5),
-                      linear-gradient(90deg, #ff6ec4, #7873f5);
-  }
-
-  @media (min-width:900px) {
-    .card { grid-template-columns:1.1fr .9fr; align-items:center }
-  }
-</style>
+    input[type="file"] { display: none; }
+  </style>
 </head>
 <body>
-  <div class="bg" aria-hidden="true"></div>
-  <main class="wrap">
+  <header>
+    <h1>Pellicule Vintage - Convertisseur Négatif</h1>
+  </header>
 
-    <!-- SECTION IMAGE -->
-    <section class="card" id="image-free">
-      <header class="head">
-        <h1>Art Your Image</h1>
-        <p class="tagline">Turn your memories into magic art.</p>
-        <p class="lead">
-          Transform your image with our <strong>free artistic curl effect</strong>.
-        </p>
-        <div class="cta">
-          <a class="btn" href="#image-free-form">Art Your Image — Free</a>
-        </div>
-      </header>
+  <!-- Bloc pellicule -->
+  <div class="camera-frame" id="cameraBox">
+    <!-- colonnes film -->
+    <div class="film-side left">
+      <div></div><div></div><div></div><div></div><div></div>
+    </div>
+    <div class="film-side right">
+      <div></div><div></div><div></div><div></div><div></div>
+    </div>
 
-      <div class="media-box">
-        <img src="assets/curl.jpg" alt="Curl effect preview">
-      </div>
-    </section>
+    <!-- REC -->
+    <div class="rec-light"></div>
 
-    <!-- SECTION VIDEO -->
-    <section class="card" id="video-pro">
-      <header class="head">
-        <h1>Art Your Video</h1>
-        <p class="tagline">Bring your story to life.</p>
-        <p class="lead">
-          Elevate your moment with a <strong>premium animated video</strong>.
-        </p>
-        <div class="cta">
-          <a class="btn alt" href="#video-pro-order">Art Your Video — Premium</a>
-        </div>
-      </header>
+    <!-- Image -->
+    <img id="displayImg" style="display:none;">
 
-      <div class="media-box">
-        <video autoplay muted loop playsinline
-               poster="assets/preview.jpg">
-          <source src="assets/demo.webm" type="video/webm">
-          <source src="assets/demo.mp4" type="video/mp4">
-          Your browser does not support HTML5 video.
-          <img src="assets/preview.jpg" alt="Video preview">
-        </video>
-      </div>
-    </section>
+    <!-- Flash -->
+    <div class="flash" id="flash"></div>
+  </div>
 
-  </main>
-  <noscript>Enable JavaScript for the best experience.</noscript>
+  <!-- Boutons en ligne -->
+  <div class="controls">
+    <label for="upload" class="upload-btn">📂 Importer</label>
+    <input type="file" id="upload" accept="image/*">
+    <button id="captureBtn" disabled>🎬 Négatif</button>
+    <button id="downloadBtn" style="display:none;">💾 Télécharger</button>
+  </div>
+
+  <!-- Son flash -->
+  <audio id="cameraSound" preload="auto">
+    <source src="https://www.soundjay.com/mechanical/camera-shutter-click-01.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const upload = document.getElementById('upload');
+    const displayImg = document.getElementById('displayImg');
+    const captureBtn = document.getElementById('captureBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const flash = document.getElementById('flash');
+    const cameraSound = document.getElementById('cameraSound');
+
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
+    let currentSrc = null;
+
+    // Upload image
+    upload.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        displayImg.src = img.src;
+        displayImg.style.display = "block";
+        captureBtn.disabled = false;
+        currentSrc = img.src;
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    // Capture = négatif + flash + son
+    captureBtn.addEventListener('click', () => {
+      if (!currentSrc) return;
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        let data = ctx.getImageData(0, 0, img.width, img.height);
+        for (let i = 0; i < data.data.length; i += 4) {
+          data.data[i] = 255 - data.data[i];
+          data.data[i+1] = 255 - data.data[i+1];
+          data.data[i+2] = 255 - data.data[i+2];
+        }
+        ctx.putImageData(data, 0, 0);
+        displayImg.src = canvas.toDataURL();
+        currentSrc = displayImg.src;
+        downloadBtn.style.display = "inline-flex";
+
+        // Effet flash + son
+        flash.classList.add("active");
+        cameraSound.currentTime = 0;
+        cameraSound.play();
+        setTimeout(() => flash.classList.remove("active"), 500);
+      };
+      img.src = currentSrc;
+    });
+
+    // Télécharger
+    downloadBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'negative.png';
+      link.href = currentSrc;
+      link.click();
+    });
+  </script>
 </body>
 </html>
-
