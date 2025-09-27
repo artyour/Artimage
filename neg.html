@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <title>Pellicule Vintage Latérale</title>
+  <title>Pellicule Vintage - Convertisseur Négatif</title>
   <style>
     body {
       font-family: Arial, sans-serif; margin: 0; padding: 0;
@@ -17,12 +17,12 @@
     }
     header h1 { margin: 0; font-size: 2em; }
 
-    /* Bloc caméra */
-    .camera-frame {
+    /* Bloc style caméra réutilisable */
+    .film-frame {
       position: relative;
       margin: 30px auto;
       width: 80%; max-width: 700px;
-      height: 400px;
+      height: 350px;
       background: #f9f4e7;
       border: 14px solid #0097a7;
       border-radius: 8px;
@@ -32,33 +32,19 @@
       align-items: center;
       overflow: hidden;
     }
-
-    /* Image ajustée */
-    .camera-frame img {
+    .film-frame img {
       max-width: calc(100% - 120px);
       max-height: 100%;
       object-fit: contain;
       border-radius: 4px;
-      z-index: 1;
-      position: relative;
-    }
-
-    /* Bouton rouge clignotant (REC) */
-    .rec-light {
       position: absolute;
-      top: 10px; right: 20px;
-      width: 20px; height: 20px;
-      background: red; border-radius: 50%;
-      box-shadow: 0 0 10px red;
-      animation: blink 1s infinite;
-      z-index: 2;
-    }
-    @keyframes blink {
-      0%, 50%, 100% { opacity: 1; }
-      25%, 75% { opacity: 0.2; }
+      top: 0; left: 0; right: 0; bottom: 0;
+      margin: auto;
+      transition: opacity 1s ease;
+      z-index: 1;
     }
 
-    /* Colonnes de film */
+    /* Colonnes pellicule */
     .film-side {
       position: absolute;
       top: 00px; bottom: 00px;
@@ -79,7 +65,7 @@
       border-radius: 3px;
     }
 
-    /* Flash blanc */
+    /* Flash */
     .flash {
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -93,6 +79,37 @@
       0% { opacity: 1; }
       100% { opacity: 0; }
     }
+
+    /* REC clignotant */
+    .rec-light {
+      position: absolute;
+      top: 10px; right: 20px;
+      width: 20px; height: 20px;
+      background: red; border-radius: 50%;
+      box-shadow: 0 0 10px red;
+      animation: blink 1s infinite;
+      z-index: 2;
+    }
+    @keyframes blink {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0.2; }
+    }
+
+    /* Overlays Avant / Après */
+    .overlay {
+      position: absolute;
+      top: 15px;
+      padding: 6px 12px;
+      font-weight: bold;
+      font-size: 1.5em;
+      background: rgba(0,0,0,0.6);
+      color: red;
+      border-radius: 4px;
+      transition: opacity 0.8s ease;
+      z-index: 2;
+    }
+    .avant { left: 40px; }
+    .apres { right: 40px; }
 
     /* Boutons */
     .controls {
@@ -111,7 +128,6 @@
     button:hover, label.upload-btn:hover {
       background: #006064;
     }
-
     input[type="file"] { display: none; }
   </style>
 </head>
@@ -120,9 +136,29 @@
     <h1>Pellicule Vintage - Convertisseur Négatif</h1>
   </header>
 
-  <!-- Bloc pellicule -->
-  <div class="camera-frame" id="cameraBox">
-    <!-- colonnes film -->
+  <!-- Bloc 1 : Intro avec avant/après -->
+  <section>
+    <h2>✨ Transformez vos photos en style Négatif Vintage</h2>
+    <div class="film-frame">
+      <!-- Colonnes -->
+      <div class="film-side left">
+        <div></div><div></div><div></div><div></div><div></div>
+      </div>
+      <div class="film-side right">
+        <div></div><div></div><div></div><div></div><div></div>
+      </div>
+      <!-- Images -->
+      <img id="imgOriginal" src="original.png" alt="Original" style="opacity:1;">
+      <img id="imgNegative" src="negative.png" alt="Négatif" style="opacity:0;">
+      <!-- Labels -->
+      <span id="labelAvant" class="overlay avant">Before</span>
+      <span id="labelApres" class="overlay apres" style="opacity:0;">After</span>
+    </div>
+  </section>
+
+  <!-- Bloc 2 : Caméra -->
+  <div class="film-frame" id="cameraBox" style="height:400px;">
+    <!-- Colonnes -->
     <div class="film-side left">
       <div></div><div></div><div></div><div></div><div></div>
     </div>
@@ -140,7 +176,7 @@
     <div class="flash" id="flash"></div>
   </div>
 
-  <!-- Boutons en ligne -->
+  <!-- Boutons -->
   <div class="controls">
     <label for="upload" class="upload-btn">📂 Importer</label>
     <input type="file" id="upload" accept="image/*">
@@ -154,6 +190,29 @@
   </audio>
 
   <script>
+    // --- Intro auto avant/après ---
+    const imgOriginal = document.getElementById("imgOriginal");
+    const imgNegative = document.getElementById("imgNegative");
+    const labelAvant = document.getElementById("labelAvant");
+    const labelApres = document.getElementById("labelApres");
+
+    let showNegative = false;
+    setInterval(() => {
+      if (showNegative) {
+        imgOriginal.style.opacity = "1";
+        imgNegative.style.opacity = "0";
+        labelAvant.style.opacity = "1";
+        labelApres.style.opacity = "0";
+      } else {
+        imgOriginal.style.opacity = "0";
+        imgNegative.style.opacity = "1";
+        labelAvant.style.opacity = "0";
+        labelApres.style.opacity = "1";
+      }
+      showNegative = !showNegative;
+    }, 2000);
+
+    // --- Bloc caméra ---
     const upload = document.getElementById('upload');
     const displayImg = document.getElementById('displayImg');
     const captureBtn = document.getElementById('captureBtn');
@@ -165,7 +224,7 @@
     let ctx = canvas.getContext('2d');
     let currentSrc = null;
 
-    // Upload image
+    // Upload
     upload.addEventListener('change', e => {
       const file = e.target.files[0];
       if (!file) return;
@@ -179,7 +238,7 @@
       img.src = URL.createObjectURL(file);
     });
 
-    // Capture = négatif + flash + son
+    // Capture négatif
     captureBtn.addEventListener('click', () => {
       if (!currentSrc) return;
       const img = new Image();
@@ -198,7 +257,7 @@
         currentSrc = displayImg.src;
         downloadBtn.style.display = "inline-flex";
 
-        // Effet flash + son
+        // Flash + son
         flash.classList.add("active");
         cameraSound.currentTime = 0;
         cameraSound.play();
@@ -207,7 +266,7 @@
       img.src = currentSrc;
     });
 
-    // Télécharger
+    // Download
     downloadBtn.addEventListener('click', () => {
       const link = document.createElement('a');
       link.download = 'negative.png';
